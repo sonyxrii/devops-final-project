@@ -25,6 +25,11 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/devops-final-app:latest
 
+      - name: Встановлення Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.7
+
       - name: Terraform Init та Apply
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
