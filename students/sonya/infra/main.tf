@@ -26,7 +26,7 @@ data "aws_ami" "ubuntu" {
 }
 
 resource "aws_security_group" "app_sg" {
-  name        = "devops-final-app-sg"
+  name        = "devops-final-app-sg-sonya"
   description = "Allow inbound traffic for SSH and HTTP"
 
   ingress {
@@ -54,7 +54,7 @@ resource "aws_security_group" "app_sg" {
 resource "aws_instance" "app_server" {
   ami             = data.aws_ami.ubuntu.id
   instance_type   = "t3.micro"
-  security_groups = [aws_security_group.app_sg.name]
+  security_groups = [aws_security_group.app_sg.id]
 
   tags = {
     Name = "DevOpsFinalServer"
