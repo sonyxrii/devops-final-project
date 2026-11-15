@@ -9,10 +9,22 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-1" 
+  region = "us-east-1"
 }
 
-# Безпечна група для SSH та веб-сервера
+data "aws_ami" "ubuntu" {
+  most_recent = true
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+  owners = ["099720109477"]
+}
+
 resource "aws_security_group" "app_sg" {
   name        = "devops-final-app-sg"
   description = "Allow inbound traffic for SSH and HTTP"
@@ -39,10 +51,9 @@ resource "aws_security_group" "app_sg" {
   }
 }
 
-
 resource "aws_instance" "app_server" {
-  ami           = "ami-08d4ac5b6345ef8e1"
-  instance_type = "t2.micro"
+  ami             = data.aws_ami.ubuntu.id
+  instance_type   = "t2.micro"
   security_groups = [aws_security_group.app_sg.name]
 
   tags = {
