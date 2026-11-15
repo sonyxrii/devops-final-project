@@ -38,3 +38,28 @@ jobs:
           cd students/sonya/infra
           terraform init
           terraform apply -auto-approve
+
+      - name: Деплой на AWS EC2 по SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY_B64 }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" | base64 -d > ec2-key.pem
+          chmod 600 ec2-key.pem
+
+          cd students/sonya/infra
+          INSTANCE_IP=$(terraform output -raw instance_ip)
+          cd ../../..
+
+          echo "Connecting to $INSTANCE_IP..."
+
+          ssh -o StrictHostKeyChecking=no -i students/sonya/infra/ec2-key.pem ubuntu@$INSTANCE_IP << 'EOF'
+            sudo apt-get update -y
+            sudo apt-get install -y docker.io
+            sudo systemctl start docker
+            sudo systemctl enable docker
+
+            sudo docker stop devops-app || true
+            sudo docker rm devops-app || true
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/devops-final-app:latest
+            sudo docker run -d --name devops-app -p 3000:3000 ${{ secrets.DOCKER_USERNAME }}/devops-final-app:latest
+          EOF
