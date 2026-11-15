@@ -40,7 +40,7 @@ resource "aws_security_group" "app_sg" {
 }
 
 
-resource "aws_instance "app_server" {
+resource "aws_instance" "app_server" {
   ami           = "ami-08d4ac5b6345ef8e1"
   instance_type = "t2.micro"
   security_groups = [aws_security_group.app_sg.name]
