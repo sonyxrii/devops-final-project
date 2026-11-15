@@ -38,14 +38,14 @@ jobs:
           cd students/sonya/infra
           terraform init
           terraform apply -auto-approve
+
       - name: Деплой на AWS EC2 по SSH
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY_B64 }}
         run: |
-          mkdir -p students/sonya/infra
-          echo "$SSH_PRIVATE_KEY" | base64 -d > students/sonya/infra/ec2-key.pem
-          chmod 600 students/sonya/infra/ec2-key.pem
           cd students/sonya/infra
+
+          terraform output -raw private_key > ec2-key.pem
+          chmod 600 ec2-key.pem
+
           INSTANCE_IP=$(terraform output -raw instance_ip)
           cd ../../..
 
