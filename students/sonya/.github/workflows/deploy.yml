@@ -1,0 +1,58 @@
+name: Final Project CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Завантажити код репозиторію
+        uses: actions/checkout@v4
+
+      - name: Авторизація у Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Збірка та пуш Docker образу
+        uses: docker/build-push-action@v5
+        with:
+          context: ./students/sonya
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/devops-final-app:latest
+
+      - name: Підготовка SSH-ключа
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY_B64 }}" | base64 -d > students/sonya/infra/ec2-key.pem
+          chmod 600 students/sonya/infra/ec2-key.pem
+
+      - name: Налаштування Terraform та деплой інфраструктури
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init та Apply
+        run: |
+          cd students/sonya/infra
+          terraform init
+          terraform apply -auto-approve
+
+      - name: Деплой контейнера на EC2 сервер
+        run: |
+          cd students/sonya/infra
+          INSTANCE_IP=$(terraform output -raw instance_ip)
+
+          ssh -i ec2-key.pem -o StrictHostKeyChecking=no ubuntu@$INSTANCE_IP << 'EOF'
+             if ! command -v docker &> /dev/null; then
+                sudo apt-get update
+                sudo apt-get install -y docker.io
+                sudo usermod -aG docker ubuntu
+            fi
+
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/devops-final-app:latest
+            sudo docker stop devops-app || true
+            sudo docker rm devops-app || true
+            sudo docker run -d --name devops-app -p 3000:3000 ${{ secrets.DOCKER_USERNAME }}/devops-final-app:latest
+          EOF
