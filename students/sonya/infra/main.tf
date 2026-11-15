@@ -26,7 +26,7 @@ data "aws_ami" "ubuntu" {
 }
 
 resource "aws_security_group" "app_sg" {
-  name        = "devops-final-app-sg-sonya"
+  name_prefix = "devops-final-app-sg-"
   description = "Allow inbound traffic for SSH and HTTP"
 
   ingress {
