@@ -65,6 +65,11 @@ resource "aws_security_group" "app_sg" {
   }
 }
 
+resource "aws_key_pair" "deployer" {
+  key_name_prefix   = "devops-final-key-"
+  public_key        = tls_private_key.ssh.public_key_openssh
+}
+
 resource "aws_instance" "app_server" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t2.micro"
