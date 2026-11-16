@@ -35,8 +35,8 @@ CI/CD Пайплайн налаштований у файлі .github/workflows/
 
 Щоб CI/CD пайплайн працював, вам потрібно додати такі секрети в налаштуваннях репозиторію GitHub:
 
-DOCKER_USERNAME — ваш логін у Docker Hub.
-DOCKER_TOKEN — токен для доступу до Docker Hub.
-AWS_ACCESS_KEY_ID — ваш ключ доступу до AWS для роботи Terraform.
-AWS_SECRET_ACCESS_KEY — ваш секретний ключ AWS.
-EC2_SSH_KEY_B64 — ваш приватний SSH-ключ, закодований у форматі Base64, для підключення до EC2.
+- DOCKER_USERNAME — ваш логін у Docker Hub.
+- DOCKER_TOKEN — токен для доступу до Docker Hub.
+- AWS_ACCESS_KEY_ID — ваш ключ доступу до AWS для роботи Terraform.
+- AWS_SECRET_ACCESS_KEY — ваш секретний ключ AWS.
+- EC2_SSH_KEY_B64 — ваш приватний SSH-ключ, закодований у форматі Base64, для підключення до EC2.
